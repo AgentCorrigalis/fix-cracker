@@ -30,16 +30,4 @@ public class CheckSumCalculator {
 		}
 	}
 	
-	private void analyseFixMessageString(String fixString) {
-		endsWithSOHCheck(fixString);
-	}
-	
-	private void endsWithSOHCheck(String fixString) {
-		if (fixString.endsWith(String.valueOf(SOH))) {
-			System.out.println("ends with SOH");
-		} else {
-			System.out.println("does not end with SOH");
-		}
-	}
-
 }

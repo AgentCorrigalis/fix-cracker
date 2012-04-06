@@ -20,7 +20,6 @@ public class MessageReader {
 	private static final Logger LOGGER = Logger.getLogger(MessageReader.class.getName());
 	
 	private DataDictionary dataDictionary;
-	private Map<Integer, String> fixMessageMap;
 	
 	public MessageReader() throws ConfigError {
 		dataDictionary = new DataDictionary("FIX44.xml");
@@ -28,13 +27,13 @@ public class MessageReader {
 	
 	public Map<Integer, String> parseFixString(String fixMessageString) throws InvalidMessage, ConfigError {
 		LOGGER.info("Received fix string [" + fixMessageString + "]");
-		fixMessageMap = new HashMap<Integer, String>();
+		Map<Integer, String> fixMessageMap = new HashMap<Integer, String>();
 		Message message = null;
 		try {
 			message = new Message(fixMessageString, true);
-			iterateMessageParts(message.getHeader().iterator());
-			iterateMessageParts(message.iterator());
-			iterateMessageParts(message.getTrailer().iterator());
+			fixMessageMap.putAll(iterateMessageParts(message.getHeader().iterator()));
+			fixMessageMap.putAll(iterateMessageParts(message.iterator()));
+			fixMessageMap.putAll(iterateMessageParts(message.getTrailer().iterator()));
 			return fixMessageMap;
 		} catch (InvalidMessage e) {
 			LOGGER.warning("-- failed validation");
@@ -42,12 +41,14 @@ public class MessageReader {
 		}
 	}
 	
-	private void iterateMessageParts(Iterator<Field<?>> iterator) {
+	private Map<Integer, String> iterateMessageParts(Iterator<Field<?>> iterator) {
+		Map<Integer, String> tagValueMap = new HashMap<Integer, String>();
 		while (iterator.hasNext()) {
 			Field<?> field = iterator.next();
 			String fieldValue = (String) field.getObject();
-			fixMessageMap.put(field.getField(), fieldValue);
+			tagValueMap.put(field.getField(), fieldValue);
 		}
+		return tagValueMap;
 	}
 
 	public String fieldNameForTag(int fieldTag) {
@@ -55,7 +56,12 @@ public class MessageReader {
 	}
 
 	public String meaningfulFieldValue(int fieldTag, String fieldValue) {
-		return dataDictionary.getValueName(fieldTag, fieldValue);
+		String dictionaryValue = dataDictionary.getValueName(fieldTag, fieldValue);
+		if (dictionaryValue == null) {
+			return fieldValue;
+		} else {
+			return dictionaryValue;
+		}
 	}
 
 	public List<String> parseFixLogFile(BufferedReader logFile) throws IOException, InvalidMessage, ConfigError {
@@ -80,7 +86,5 @@ public class MessageReader {
 		}
 		return fixRecord;
 	}
-
-	
 	
 }

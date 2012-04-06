@@ -5,7 +5,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -28,7 +27,7 @@ public class MessageReaderTest {
 	}
 	
 	@Test
-	public void parsseSingleFixString() throws InvalidMessage, ConfigError {
+	public void parseSingleFixString() throws InvalidMessage, ConfigError {
 		String fixMessageString = "8=FIX.4.49=3035=D49=SEND56=TARGET11=12310=096";
 		Map<Integer, String> fixMessageMap = fixViewer.parseFixString(fixMessageString);
 		assertEquals(7, fixMessageMap.size());
@@ -64,7 +63,7 @@ public class MessageReaderTest {
 		int nonEnumeratedFieldTag = 49;
 		String nonEnumeratedFieldValue = "SEND";
 		assertEquals("NewOrderSingle", fixViewer.meaningfulFieldValue(enumeratedFieldTag, enumeratedFieldValue));
-		assertNull(fixViewer.meaningfulFieldValue(nonEnumeratedFieldTag, nonEnumeratedFieldValue));
+		assertEquals("SEND", fixViewer.meaningfulFieldValue(nonEnumeratedFieldTag, nonEnumeratedFieldValue));
 	}
 	
 	@Test
