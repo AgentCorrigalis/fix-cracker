@@ -1,5 +1,8 @@
 package com.corrigal.fixCracker;
 
+import static com.corrigal.fixCracker.CommonConstants.PIPE;
+import static com.corrigal.fixCracker.CommonConstants.SOH;
+import static com.corrigal.fixCracker.CommonConstants.COMMA;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -9,15 +12,17 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import quickfix.ConfigError;
 import quickfix.InvalidMessage;
 
+import com.sun.tools.corba.se.idl.InvalidArgument;
+
 public class MessageReaderTest {
 
-	private static final char SOH = 0001;
 	private MessageReader fixViewer;
 	
 	@Before
@@ -26,9 +31,19 @@ public class MessageReaderTest {
 	}
 	
 	@Test
-	public void parseSingleFixString() throws InvalidMessage, ConfigError {
+	public void canParseFixStringDelimitedBySOH() throws InvalidMessage, ConfigError, InvalidArgument {
+		assertFixStringParsed(SOH);
+	}
+	
+	@Test
+	public void canParseFixStringsWithOtherDelimiters() throws InvalidMessage, ConfigError, InvalidArgument {
+		assertFixStringParsed(PIPE);
+		assertFixStringParsed(COMMA);
+	}
+	
+	private void assertFixStringParsed(String delimiter) throws InvalidMessage, ConfigError, RuntimeException {
 		String fixMessageString = "8=FIX.4.49=3035=D49=SEND56=TARGET11=12310=096";
-		Map<Integer, String> fixMessageMap = fixViewer.parseFixString(fixMessageString);
+		Map<Integer, String> fixMessageMap = fixViewer.parseFixString(StringUtils.replace(fixMessageString, SOH, delimiter));
 		assertEquals(7, fixMessageMap.size());
 		assertTrue(fixMessageMap.get(8).equals("FIX.4.4"));
 		assertTrue(fixMessageMap.get(9).equals("30"));
@@ -40,8 +55,19 @@ public class MessageReaderTest {
 	}
 	
 	@Test
+	public void canNotParseFixStringDelimitedByUnknowCharacter() throws InvalidMessage, ConfigError {
+		String fixString = "8=FIX.4.4?9=30?35=D?49=SEND?56=TARGET?11=123?10=096?";
+		try {
+			fixViewer.parseFixString(fixString);
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			assertEquals("FIX String not delimited by recognised character", e.getMessage());
+		}
+	}
+	
+	@Test
 	public void invalidFixStringThrowsInvalidMessge() {
-		String fixMessageString = "not a fix string";
+		String fixMessageString = "NER NER NER 8=FIX.4.49=3035=D49=SEND56=TARGET11=12310=096";
 		try {
 			fixViewer.parseFixString(fixMessageString);
 		} catch (Exception e) {
@@ -82,5 +108,7 @@ public class MessageReaderTest {
 		String expectedFixString = "8=FIX.4.49=3035=D49=SEND56=TARGET11=12310=096";
 		assertEquals(expectedFixString, fixViewer.extractFixString(fixLogRecord));
 	}
+	
+
 	
 }

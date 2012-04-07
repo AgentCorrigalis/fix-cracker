@@ -1,4 +1,4 @@
-package commandLineApp;
+package com.corrigal.fixCracker.commandLineApps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,10 +9,11 @@ import quickfix.ConfigError;
 import quickfix.InvalidMessage;
 
 import com.corrigal.fixCracker.MessageReader;
+import com.sun.tools.corba.se.idl.InvalidArgument;
 
-public class FixSringInterpretor {
+public class FixStringInterpretor {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InvalidArgument {
 		System.out.println("Paste FIX message up to last SOH before checkSum field (pipe delimited):");
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		String fixMessageString = input.readLine();
@@ -27,7 +28,7 @@ public class FixSringInterpretor {
 		}
 	}
 	
-	private static Map<Integer, String> parseString(String fixString) throws ConfigError, InvalidMessage {
+	private static Map<Integer, String> parseString(String fixString) throws ConfigError, InvalidMessage, InvalidArgument {
 		MessageReader reader = new MessageReader();
 		return reader.parseFixString(fixString);
 	}
@@ -41,7 +42,6 @@ public class FixSringInterpretor {
 			System.out.println(outputRow);
 		}
 	}
-	
 	
 
 }

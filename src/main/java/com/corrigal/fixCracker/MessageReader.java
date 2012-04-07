@@ -25,12 +25,15 @@ public class MessageReader {
 		dataDictionary = new DataDictionary("FIX44.xml");
 	}
 	
-	public Map<Integer, String> parseFixString(String fixMessageString) throws InvalidMessage, ConfigError {
-		LOGGER.info("Received fix string [" + fixMessageString + "]");
+	public Map<Integer, String> parseFixString(String fixString) throws InvalidMessage, ConfigError, RuntimeException {
+		
+		String normalisedFixString = FixStringNormaliser.process(fixString);
+		
+		LOGGER.info("Received fix string [" + normalisedFixString + "]");
 		Map<Integer, String> fixMessageMap = new HashMap<Integer, String>();
 		Message message = null;
 		try {
-			message = new Message(fixMessageString, true);
+			message = new Message(normalisedFixString, true);
 			fixMessageMap.putAll(iterateMessageParts(message.getHeader().iterator()));
 			fixMessageMap.putAll(iterateMessageParts(message.iterator()));
 			fixMessageMap.putAll(iterateMessageParts(message.getTrailer().iterator()));
