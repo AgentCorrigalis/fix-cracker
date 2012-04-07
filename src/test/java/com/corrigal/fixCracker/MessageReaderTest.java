@@ -2,7 +2,6 @@ package com.corrigal.fixCracker;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;

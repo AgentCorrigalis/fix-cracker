@@ -25,8 +25,6 @@ public class FixSringInterpretor {
 		} catch (ConfigError e) {
 			System.out.println(e.getMessage());
 		}
-		
-		
 	}
 	
 	private static Map<Integer, String> parseString(String fixString) throws ConfigError, InvalidMessage {
@@ -39,7 +37,8 @@ public class FixSringInterpretor {
 		for (Integer tag : fixFieldMap.keySet()) {
 			String tagName = reader.fieldNameForTag(tag);
 			String fieldValue = reader.meaningfulFieldValue(tag, fixFieldMap.get(tag));
-			System.out.println(tag + "\t- " + tagName + "\t\t" + fieldValue);
+			String outputRow = String.format("%-10s %-20s %-20s", tag, tagName, fieldValue);
+			System.out.println(outputRow);
 		}
 	}
 	
